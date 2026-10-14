@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobPulse &bull; Intelligent Resume-Driven Career Matchmaker</title>
+  <meta name="description" content="AI-driven career opportunity discovery and resume-matching platform with multi-filter search and automated email digests.">
+  
+  <!-- Modern Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Left Navigation Rail (Adapts to Bottom Pill on Mobile) -->
+    <nav class="nav-rail" aria-label="Main Navigation">
+      <div class="rail-top">
+        <div class="brand-badge" title="JobPulse Career Matcher" onclick="loadProfileAndData()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+          </svg>
+        </div>
+        <button class="rail-btn active" title="Dashboard Overview" onclick="setStageFilter('all')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </button>
+        <button class="rail-btn" title="Job Feed &amp; Matches" onclick="setStageFilter('matched')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </button>
+        <button class="rail-btn" title="Applications Tracker" onclick="setStageFilter('applied')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" x2="8" y1="13" y2="13"/>
+            <line x1="16" x2="8" y1="17" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </button>
+        <button class="rail-btn" id="resumeStudioNavBtn" title="ATS Resume Studio &amp; Scorer" onclick="openResumeStudio()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            <path d="m15 5 3 3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="rail-mid">
+        <button class="rail-btn" title="Email Digest Setup &amp; Preview" onclick="previewEmailDigest()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </button>
+        <button class="rail-btn" id="syncJobsBtn" title="Fetch Live Jobs from Internet" onclick="syncJobs()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+            <path d="M16 21h5v-5"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="rail-bottom">
+        <div class="user-avatar-btn" id="userAvatar" title="Active Candidate Profile" onclick="openModal('resumeUploadModal')">
+          AM
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Canvas -->
+    <main class="main-canvas">
+      
+      <!-- Top Action Bar -->
+      <header class="top-bar">
+        <div class="brand-capsule">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="m10 15 5-3-5-3v6Z"/>
+          </svg>
+          <h1>JobPulse</h1>
+          <span class="date-pill" id="liveDate">Mon, 27 Oct</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="search-trigger-btn" onclick="openModal('searchPaletteModal')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <span>Search opportunities...</span>
+            <span class="kbd-shortcut">&#8984;K</span>
+          </button>
+
+          <button class="icon-pill-btn" title="Email Digest Center" onclick="previewEmailDigest()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            <span class="badge-counter" id="digestAlertCount">5+</span>
+          </button>
+
+          <button class="icon-pill-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+            &#9790;
+          </button>
+
+          <button class="pill-btn-accent" onclick="openResumeStudio()" title="Interactive ATS Resume Studio &amp; Scorer">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+            <span>Resume Studio &amp; ATS Scorer</span>
+          </button>
+
+          <button class="primary-cta-btn" onclick="openModal('resumeUploadModal')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>Upload Resume</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Active Resume Banner & Interactive Skills Strip -->
+      <section class="resume-hero-banner" id="resumeBanner">
+        <div class="banner-top-row">
+          <div class="banner-candidate-info">
+            <div class="banner-avatar" id="bannerAvatar">{{ profile.full_name[:2].upper() if profile and profile.full_name else 'AM' }}</div>
+            <div>
+              <div class="banner-title-line">
+                <span class="candidate-name" id="bannerCandidateName">{{ profile.full_name if profile and profile.full_name else 'Alex Mercer' }}</span>
+                <span class="seniority-tag" id="bannerSeniority">{{ profile.seniority_level.title() if profile and profile.seniority_level else 'Senior' }}</span>
+                <span class="exp-badge" id="bannerExp">{{ profile.experience_years if profile else 6.0 }} Years Exp</span>
+              </div>
+              <div class="banner-role-desc" id="bannerHeadline">
+                {{ (profile.target_roles | join(' &bull; ')) if profile and profile.target_roles else 'Senior Python &amp; FastAPI Backend Engineer &bull; Target: Distributed Systems &amp; APIs' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="banner-actions">
+            <button class="pill-btn-accent" onclick="openResumeStudio()">
+              📝 Open ATS Resume Studio
+            </button>
+            <button class="pill-btn-outline" onclick="openModal('resumeUploadModal')">
+              &uarr; Upload / Paste Resume
+            </button>
+            <div class="sample-profiles-dropdown">
+              <button class="pill-btn-subtle" onclick="toggleSampleMenu()">
+                ✨ Switch Sample Profile &#9662;
+              </button>
+              <div class="sample-menu-dropdown" id="sampleMenu">
+                <div class="sample-item" onclick="loadSampleResumePreset('python-senior')">
+                  <strong>Python &amp; FastAPI Backend</strong> (Senior, 6 yrs)
+                </div>
+                <div class="sample-item" onclick="loadSampleResumePreset('frontend-react')">
+                  <strong>React &amp; Next.js Frontend</strong> (Senior, 7 yrs)
+                </div>
+                <div class="sample-item" onclick="loadSampleResumePreset('devops-cloud')">
+                  <strong>Kubernetes &amp; Cloud DevOps</strong> (Principal, 8.5 yrs)
+                </div>
+                <div class="sample-item" onclick="loadSampleResumePreset('ai-ml')">
+                  <strong>Machine Learning &amp; AI</strong> (Senior, 5 yrs)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills Strip with Real-Time Add / Remove -->
+        <div class="banner-skills-strip">
+          <span class="skills-strip-label">Extracted Skills:</span>
+          <div class="skills-tag-list" id="bannerSkillsList">
+            {% if profile and profile.skills %}
+              {% for skill in profile.skills[:12] %}
+                <span class="skill-chip">{{ skill }} <button class="chip-remove" onclick="removeSkill('{{ skill }}')">&times;</button></span>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <button class="add-skill-chip-btn" onclick="promptAddSkill()">+ Add Skill</button>
+        </div>
+      </section>
+
+      <!-- Bento Grid Layout -->
+      <section class="bento-grid" aria-label="Career Analytics &amp; Opportunities Bento">
+        
+        <!-- Bento 1: Hero Career Pipeline Card -->
+        <article class="bento-card hero-pipeline-card">
+          <div class="pipeline-header">
+            <div class="pipeline-title">
+              <h2>Career Search Pipeline</h2>
+              <div class="subtitle">Personalized Match Distribution</div>
+              <div class="pipeline-main-metric" id="heroMainMetric">
+                {{ summary.total_scanned_jobs if summary else 0 }} <span>Active Opportunities</span>
+              </div>
+            </div>
+
+            <div class="pipeline-stats-cluster">
+              <div class="stat-item">
+                <div class="stat-label">Avg Match Score</div>
+                <div class="stat-value" id="heroAvgScore">{{ summary.avg_match_score if summary else 0 }}%</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">High-Confidence</div>
+                <div class="stat-value" id="heroMatchedCount">{{ summary.matched_jobs_count if summary else 0 }}</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Work Mode</div>
+                <div class="stat-value" style="color: var(--accent-orange);">Verified Remote</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Funnel Bar Visualizer -->
+          <div class="pipeline-funnel-container" id="pipelineFunnel">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </article>
+
+        <!-- Bento 2: Quick Feed / Today's Verified Openings -->
+        <article class="bento-card quick-feed-card">
+          <div class="feed-header">
+            <h3>Verified Matches</h3>
+            <span class="count-pill">Fresh Openings</span>
+          </div>
+          <div class="quick-job-list" id="quickJobList">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </article>
+
+        <!-- Bento 3: Main Opportunities List / Table Card with Advanced Multi-Filters -->
+        <article class="bento-card main-table-card">
+          <div class="table-card-top">
+            <div>
+              <h3>Career Opportunities</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;" id="matchResultsCounter">
+                Matching against your resume profile
+              </p>
+            </div>
+            
+            <div class="table-actions-right">
+              <button class="reset-filters-btn" id="resetFiltersBtn" onclick="resetAllFilters()">
+                Reset Filters
+              </button>
+            </div>
+          </div>
+
+          <!-- Multi-Filter Controls Bar -->
+          <div class="multi-filters-bar">
+            
+            <!-- Free Text Search -->
+            <div class="filter-group-item search-grow">
+              <label>Search Keyword</label>
+              <input type="text" id="inlineSearch" class="filter-input-text" placeholder="Title, company, or tech stack...">
+            </div>
+
+            <!-- Match Threshold Filter -->
+            <div class="filter-group-item">
+              <label>Match Confidence</label>
+              <select id="matchConfidenceSelect" class="filter-select" onchange="applyFilters()">
+                <option value="0" selected>All Matches (Any %)</option>
+                <option value="70">Good Matches (70%+)</option>
+                <option value="80">High Matches (80%+)</option>
+                <option value="90">Best Matches (90%+)</option>
+              </select>
+            </div>
+
+            <!-- Role Domain Filter -->
+            <div class="filter-group-item">
+              <label>Role Domain</label>
+              <select id="roleDomainSelect" class="filter-select" onchange="applyFilters()">
+                <option value="all">All Domains</option>
+                <option value="backend">Backend &amp; APIs</option>
+                <option value="frontend">Frontend &amp; UI</option>
+                <option value="fullstack">Full-Stack</option>
+                <option value="cloud">Cloud &amp; DevOps</option>
+                <option value="ai">AI &amp; Machine Learning</option>
+              </select>
+            </div>
+
+            <!-- Work Mode Filter -->
+            <div class="filter-group-item">
+              <label>Work Mode</label>
+              <select id="workModeSelect" class="filter-select" onchange="applyFilters()">
+                <option value="all">All Modes</option>
+                <option value="remote">Remote Only</option>
+                <option value="onsite">On-Site / Hybrid</option>
+              </select>
+            </div>
+
+            <!-- Min Salary Filter -->
+            <div class="filter-group-item">
+              <label>Min Salary</label>
+              <select id="minSalarySelect" class="filter-select" onchange="applyFilters()">
+                <option value="0">Any Salary</option>
+                <option value="100000">$100k+ / year</option>
+                <option value="130000">$130k+ / year</option>
+                <option value="150000">$150k+ / year</option>
+                <option value="180000">$180k+ / year</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group-item">
+              <label>Sort By</label>
+              <select id="sortBySelect" class="filter-select" onchange="applyFilters()">
+                <option value="score">Highest Match Score</option>
+                <option value="salary">Highest Salary</option>
+                <option value="newest">Newest First</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Quick Skill Tags Filter Bar -->
+          <div class="quick-skill-pills-row">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">
+              Filter By Required Skill:
+            </span>
+            <div class="skill-filter-chips-wrap" id="skillFilterChips">
+              <!-- Dynamically rendered popular skills chips -->
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div style="overflow-x: auto; margin-top: 14px;">
+            <table class="opp-table">
+              <thead>
+                <tr>
+                  <th>Role &amp; Organization</th>
+                  <th>Match Confidence</th>
+                  <th>Top Matching Skills</th>
+                  <th>Salary Indicator</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="opportunitiesTableBody">
+                {% if top_matches %}
+                  {% for match in top_matches %}
+                    <tr class="opp-row" onclick="viewJobDetail('{{ match.job.id }}')">
+                      <td class="opp-primary-col">
+                        <h4>{{ match.job.title }}</h4>
+                        <p>{{ match.job.company }} &bull; {{ match.job.location }}</p>
+                      </td>
+                      <td>
+                        <span class="score-badge {{ 'score-high' if match.match_score >= 80 else 'score-mid' }}">
+                          {{ match.match_score|round|int }}% Match
+                        </span>
+                      </td>
+                      <td>
+                        <div class="opp-skills-tag-wrap">
+                          {% for skill in match.matched_skills[:3] %}
+                            <span class="opp-skill-tag">{{ skill }}</span>
+                          {% endfor %}
+                        </div>
+                      </td>
+                      <td class="opp-salary-col">
+                        {{ match.job.salary_range or 'Competitive' }}
+                      </td>
+                      <td style="text-align: right;">
+                        <button class="opp-action-btn" onclick="event.stopPropagation(); viewJobDetail('{{ match.job.id }}')">
+                          Inspect &rarr;
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Bento 4: Right Sidebar Stack (Spotlight Card + Status Filter Card) -->
+        <div class="bento-sidebar-stack">
+          
+          <!-- Spotlight Card (Warm Cream / Peach Accent) -->
+          <article class="spotlight-card" id="spotlightCard">
+            <div class="spotlight-top">
+              <span id="spotlightBadge">Top Match &bull; 98% Confidence</span>
+              <div class="spotlight-arrows">
+                <button class="arrow-btn" onclick="cycleSpotlight(-1)">&larr;</button>
+                <button class="arrow-btn" onclick="cycleSpotlight(1)">&rarr;</button>
+              </div>
+            </div>
+            <div>
+              <div class="spotlight-title" id="spotlightTitle">Senior Python &amp; FastAPI Backend Architect</div>
+              <div class="spotlight-subtitle" id="spotlightSub">Vercel Partner Labs &bull; $140,000 - $175,000 &bull; Remote</div>
+            </div>
+            <button class="spotlight-cta" onclick="viewSpotlightDetails()">
+              Inspect Match Rationale &rarr;
+            </button>
+          </article>
+
+          <!-- Status Filter Card (Warm Flame Orange Accent) -->
+          <article class="filter-card-orange">
+            <div class="filter-header">
+              <h3>Filter Opportunities</h3>
+              <p>Segment matching roles by stage</p>
+            </div>
+
+            <div class="filter-pills-wrap">
+              <button class="filter-pill active" data-stage="all" onclick="setStageFilter('all')">All Roles</button>
+              <button class="filter-pill" data-stage="matched" onclick="setStageFilter('matched')">Matched</button>
+              <button class="filter-pill" data-stage="saved" onclick="setStageFilter('saved')">Saved</button>
+              <button class="filter-pill" data-stage="applied" onclick="setStageFilter('applied')">Applied</button>
+              <button class="filter-pill" data-stage="interviewing" onclick="setStageFilter('interviewing')">Interviewing</button>
+              <button class="filter-pill" data-stage="offer" onclick="setStageFilter('offer')">Offers</button>
+            </div>
+
+            <div class="filter-bottom-stat">
+              <div class="stat-subtitle">Top Opportunity Ceiling</div>
+              <div class="stat-amount" id="topCeilingSalary">{{ top_ceiling_salary }}</div>
+            </div>
+          </article>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Interactive ATS Resume Studio & Diagnostic Scorer Modal -->
+  <div class="modal-overlay" id="resumeStudioModal">
+    <div class="modal-content studio-modal-container">
+      
+      <!-- Studio Header -->
+      <div class="studio-header">
+        <div class="studio-header-left">
+          <div class="studio-badge-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              <path d="m15 5 3 3"/>
+            </svg>
+          </div>
+          <div>
+            <h3>ATS Resume Studio &amp; Optimizer</h3>
+            <p>Single-Column Greenhouse/Lever Compliant Builder with Real-Time ATS Scoring</p>
+          </div>
+        </div>
+
+        <div class="studio-header-center">
+          <div class="studio-score-chip" id="studioScoreChip">
+            <span class="score-num" id="studioOverallScore">{{ ats_report.overall_score|round|int if ats_report else '--' }}</span>
+            <div class="score-details">
+              <span class="score-grade" id="studioOverallGrade">{{ ats_report.grade if ats_report else 'ATS Score' }}</span>
+              <span class="score-label" id="studioScoreStatus">{{ 'ATS Ready' if ats_report and ats_report.overall_score >= 80 else 'Analyzing...' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-header-actions">
+          <button class="pill-btn-outline" onclick="printATSResume()" title="Print or Export Standard Single-Column ATS PDF">
+            🖨️ Export ATS PDF
+          </button>
+          <button class="primary-cta-btn" id="saveStudioBtn" onclick="saveResumeStudio()">
+            💾 Save &amp; Set Active Profile
+          </button>
+          <button class="modal-close-btn" onclick="closeModal('resumeStudioModal')">&times;</button>
+        </div>
+      </div>
+
+      <!-- Mobile View Switcher for Small Screens -->
+      <div class="studio-mobile-view-nav">
+        <button class="mobile-nav-pill active" id="mobTabEditorBtn" onclick="switchMobileStudioPane('editor')">✏️ Editor Form</button>
+        <button class="mobile-nav-pill" id="mobTabAtsBtn" onclick="switchMobileStudioPane('ats')">🎯 ATS Report</button>
+        <button class="mobile-nav-pill" id="mobTabPreviewBtn" onclick="switchMobileStudioPane('preview')">📄 ATS Paper Preview</button>
+      </div>
+
+      <!-- Studio Responsive Split Grid -->
+      <div class="studio-grid-body">
+        
+        <!-- Left Panel: Form Editor & Diagnostic Optimizer -->
+        <div class="studio-left-pane">
+          
+          <!-- Sub-Tab Switcher -->
+          <div class="studio-tabs-bar">
+            <button class="studio-tab-btn active" id="studioTabEditorBtn" onclick="switchStudioTab('editor')">
+              ✏️ Interactive Resume Maker
+            </button>
+            <button class="studio-tab-btn" id="studioTabAtsBtn" onclick="switchStudioTab('ats')">
+              🎯 ATS Diagnostic Report
+              <span class="badge-mini-counter" id="studioSuggestionsCount">0</span>
+            </button>
+          </div>
+
+          <!-- Tab Pane 1: Resume Builder Form -->
+          <div class="studio-tab-content active" id="studioEditorPane">
+            
+            <!-- Section: Personal & Contact Info -->
+            <div class="studio-form-card">
+              <div class="form-card-title">1. Candidate Identity &amp; Contact</div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="builderFullName" class="studio-input" placeholder="e.g. Alex Mercer" oninput="onBuilderInputChange()">
+                </div>
+                <div class="form-group">
+                  <label>Target Headline / Title</label>
+                  <input type="text" id="builderTitle" class="studio-input" placeholder="e.g. Senior Backend Engineer" oninput="onBuilderInputChange()">
+                </div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" id="builderEmail" class="studio-input" placeholder="e.g. alex.mercer@example.com" oninput="onBuilderInputChange()">
+                </div>
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="text" id="builderPhone" class="studio-input" placeholder="e.g. +1 (555) 019-2834" oninput="onBuilderInputChange()">
+                </div>
+                <div class="form-group">
+                  <label>Location / Work Preference</label>
+                  <input type="text" id="builderLocation" class="studio-input" placeholder="e.g. Remote / Global" oninput="onBuilderInputChange()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: Professional Summary -->
+            <div class="studio-form-card">
+              <div class="form-card-title-row">
+                <span class="form-card-title">2. Professional Summary Statement</span>
+                <span class="word-count-badge" id="summaryWordCount">0 words</span>
+              </div>
+              <p class="form-help-text">
+                Begin with your core engineering focus, quantified years of experience, and primary stack.
+              </p>
+              <textarea id="builderSummary" class="studio-textarea" rows="3" placeholder="Full-stack software engineer with 6+ years of experience designing scalable Python backends..." oninput="onBuilderInputChange()"></textarea>
+            </div>
+
+            <!-- Section: Core Technical Skills -->
+            <div class="studio-form-card">
+              <div class="form-card-title-row">
+                <span class="form-card-title">3. Technical Competencies &amp; Skills</span>
+                <span style="font-size: 11px; color: var(--text-dim);">Press Enter to add</span>
+              </div>
+              <div class="studio-skills-wrap" id="builderSkillsList">
+                <!-- Dynamically populated skill chips -->
+              </div>
+              <div class="add-skill-input-row">
+                <input type="text" id="newSkillInput" class="studio-input" placeholder="Type a skill (e.g. Docker, GraphQL, Kubernetes) and press Enter..." onkeydown="handleNewSkillKey(event)">
+                <button type="button" class="studio-subtle-btn" onclick="addSkillFromInput()">+ Add</button>
+              </div>
+            </div>
+
+            <!-- Section: Work Experience -->
+            <div class="studio-form-card">
+              <div class="form-card-title-row">
+                <span class="form-card-title">4. Work Experience &amp; Quantified Achievements</span>
+                <button type="button" class="studio-add-item-btn" onclick="addExperienceCard()">
+                  + Add Position
+                </button>
+              </div>
+              <p class="form-help-text">
+                ATS Tip: Start bullets with active verbs (Architected, Engineered) and include measurable results (%, $, ms, scale).
+              </p>
+              <div class="experience-cards-container" id="builderExperienceList">
+                <!-- Dynamically populated experience cards -->
+              </div>
+            </div>
+
+            <!-- Section: Education -->
+            <div class="studio-form-card">
+              <div class="form-card-title-row">
+                <span class="form-card-title">5. Education &amp; Credentials</span>
+                <button type="button" class="studio-add-item-btn" onclick="addEducationItem()">
+                  + Add Education
+                </button>
+              </div>
+              <div class="education-items-container" id="builderEducationList">
+                <!-- Dynamically populated education rows -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tab Pane 2: ATS Diagnostic Report & Suggestions -->
+          <div class="studio-tab-content" id="studioAtsPane" style="display: none;">
+            
+            <!-- Quick Summary Cards -->
+            <div class="ats-quick-metrics-row">
+              <div class="ats-metric-tile">
+                <div class="metric-num" id="atsMetricWordCount">0</div>
+                <div class="metric-label">Word Count</div>
+              </div>
+              <div class="ats-metric-tile">
+                <div class="metric-num" id="atsMetricPowerVerbs">0</div>
+                <div class="metric-label">Power Verbs</div>
+              </div>
+              <div class="ats-metric-tile">
+                <div class="metric-num" id="atsMetricQuantified">0</div>
+                <div class="metric-label">Metrics Detected</div>
+              </div>
+              <div class="ats-metric-tile">
+                <div class="metric-num" id="atsMetricGaps">0</div>
+                <div class="metric-label">Market Skill Gaps</div>
+              </div>
+            </div>
+
+            <!-- Category Scores -->
+            <div class="studio-form-card" style="margin-top: 14px;">
+              <div class="form-card-title">Detailed ATS Category Breakdown</div>
+              <div class="ats-categories-container" id="atsCategoryBars">
+                <!-- Dynamically rendered category bars -->
+              </div>
+            </div>
+
+            <!-- Actionable Suggestions with 1-Click Fixes -->
+            <div class="studio-form-card" style="margin-top: 14px;">
+              <div class="form-card-title-row">
+                <span class="form-card-title">High-Impact Optimization Suggestions</span>
+                <span class="pill-badge-orange" id="suggestionsBadge">Live Analysis</span>
+              </div>
+              <p class="form-help-text">
+                Apply these targeted suggestions to maximize screening pass rates on Greenhouse, Lever, and Workday.
+              </p>
+              <div class="ats-suggestions-list" id="studioSuggestionsList">
+                <!-- Dynamically rendered actionable suggestions -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right Panel: Live Clean Single-Column ATS Paper Preview -->
+        <div class="studio-right-pane">
+          <div class="preview-controls-bar">
+            <span class="preview-badge">
+              📄 Greenhouse &amp; Lever Compliant (Single Column Standard)
+            </span>
+            <div class="preview-actions-right">
+              <button class="preview-tool-btn" onclick="printATSResume()" title="Print or Save as PDF">
+                🖨️ Print / PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Paper Canvas -->
+          <div class="ats-paper-wrapper">
+            <div class="ats-paper-sheet" id="atsPaperPreview">
+              <!-- Live compiled clean ATS Resume HTML -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Command Palette Modal (Ctrl + K) -->
+  <div class="modal-overlay" id="searchPaletteModal">
+    <div class="modal-content palette-modal">
+      <div class="palette-input-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="paletteInput" placeholder="Quick jump to skills, positions, companies..." autocomplete="off">
+        <span class="kbd-shortcut">ESC</span>
+      </div>
+      <div class="palette-results-list" id="paletteResults">
+        <!-- Results dynamically inserted -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Resume Upload & Profile Analysis Modal (3 Tabs: Upload / Paste / Samples) -->
+  <div class="modal-overlay" id="resumeUploadModal">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3>Resume Intelligence Center</h3>
+        <button class="modal-close-btn" onclick="closeModal('resumeUploadModal')">&times;</button>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="modal-tabs-header">
+        <button class="modal-tab-btn active" id="tabUploadBtn" onclick="switchResumeTab('upload')">
+          📁 Upload File
+        </button>
+        <button class="modal-tab-btn" id="tabPasteBtn" onclick="switchResumeTab('paste')">
+          📝 Paste Resume Text
+        </button>
+        <button class="modal-tab-btn" id="tabSampleBtn" onclick="switchResumeTab('sample')">
+          ✨ Sample Resumes
+        </button>
+      </div>
+
+      <!-- Tab 1: Upload File -->
+      <div class="tab-pane active" id="paneUpload">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Upload your PDF, DOCX, or TXT resume. Our FastAPI engine automatically parses technical competencies, calculates match scores across live web jobs, and tunes your automated email alert criteria.
+        </p>
+
+        <div class="dropzone" id="resumeDropzone">
+          <div class="dropzone-icon">&uarr;</div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Drop your resume here, or click to browse</div>
+          <div style="font-size: 12px; color: var(--text-dim);">Supports PDF, DOCX, TXT (Up to 10 MB)</div>
+          <input type="file" id="resumeFileInput" accept=".pdf,.docx,.doc,.txt" style="display: none;">
+        </div>
+      </div>
+
+      <!-- Tab 2: Paste Resume Text -->
+      <div class="tab-pane" id="panePaste" style="display: none;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+          Don't have your resume file right now? Paste your resume text, bio, or LinkedIn experience summary below:
+        </p>
+        <textarea id="pasteResumeTextarea" class="paste-textarea" rows="8" placeholder="Paste your resume content or skills summary here... (e.g. Senior Backend Developer with 5 years experience in Python, FastAPI, Docker, and PostgreSQL...)"></textarea>
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+          <button class="primary-cta-btn" onclick="submitPastedResume()">Analyze Pasted Resume &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Tab 3: Preset Sample Resumes -->
+      <div class="tab-pane" id="paneSample" style="display: none;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+          Select any of our pre-built engineer profiles to test instant match scoring and re-ranking:
+        </p>
+        <div class="samples-grid">
+          <div class="sample-card" onclick="loadSampleResumePreset('python-senior'); closeModal('resumeUploadModal');">
+            <h4>🐍 Senior Python &amp; FastAPI Backend</h4>
+            <p>6 yrs experience &bull; Python, FastAPI, Docker, PostgreSQL, Redis, AsyncIO, AWS</p>
+          </div>
+          <div class="sample-card" onclick="loadSampleResumePreset('frontend-react'); closeModal('resumeUploadModal');">
+            <h4>⚛️ Staff Frontend &amp; UI Architect</h4>
+            <p>7 yrs experience &bull; React, Next.js, TypeScript, JavaScript, CSS, REST APIs</p>
+          </div>
+          <div class="sample-card" onclick="loadSampleResumePreset('devops-cloud'); closeModal('resumeUploadModal');">
+            <h4>☁️ Principal Cloud &amp; DevOps Architect</h4>
+            <p>8.5 yrs experience &bull; Kubernetes, Docker, AWS, Terraform, CI/CD, Linux</p>
+          </div>
+          <div class="sample-card" onclick="loadSampleResumePreset('ai-ml'); closeModal('resumeUploadModal');">
+            <h4>🧠 Machine Learning &amp; AI Engineer</h4>
+            <p>5 yrs experience &bull; PyTorch, LLMs, NLP, Python, FastAPI, Vector Search</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; text-align: center;">
+        <div id="uploadSpinner" style="display: none; font-size: 13px; color: var(--accent-orange); margin-bottom: 6px;">
+          Parsing resume entities &amp; computing match vectors...
+        </div>
+        <div id="uploadStatusText" style="font-size: 13px; color: var(--text-main); font-weight: 600;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Digest Preview & Dispatch Modal -->
+  <div class="modal-overlay" id="emailDigestModal">
+    <div class="modal-content" style="max-width: 680px; width: 95%;">
+      <div class="modal-header">
+        <div>
+          <h3>Automated Email Digest Setup</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            Configure your personalized alert criteria and preview the exact HTML email digest.
+          </p>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('emailDigestModal')">&times;</button>
+      </div>
+
+      <!-- Digest Configuration Bar -->
+      <div class="digest-config-box">
+        <div class="digest-input-group">
+          <label>Your Email Address</label>
+          <input type="email" id="digestEmailInput" class="filter-input-text" placeholder="you@domain.com" value="alex.mercer@example.com">
+        </div>
+        <div class="digest-input-group">
+          <label>Alert Cadence</label>
+          <select id="digestFrequencySelect" class="filter-select">
+            <option value="Daily">Daily Digest (8:00 AM)</option>
+            <option value="Weekly">Weekly Summary</option>
+            <option value="Instant">Instant High-Match Alerts</option>
+          </select>
+        </div>
+        <div class="digest-input-group">
+          <label>Min Match Score</label>
+          <select id="digestThresholdSelect" class="filter-select">
+            <option value="70">70% Match</option>
+            <option value="75" selected>75% Match (Recommended)</option>
+            <option value="85">85% High Confidence Only</option>
+            <option value="90">90% Best Matches Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; height: 380px; margin-bottom: 18px;">
+        <iframe id="emailPreviewFrame" style="width: 100%; height: 100%; border: none; background: #0e0e11;"></iframe>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="font-size: 12px; color: var(--text-dim);">
+          Compliance: <strong style="color: var(--text-main);">CAN-SPAM &amp; RFC 8058 One-Click Unsubscribe</strong>
+        </div>
+        <button class="primary-cta-btn" id="sendDigestBtn" onclick="sendTestEmailDigest()">
+          Send Test Digest Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Slide-Over Job Details Drawer -->
+  <div class="drawer-overlay" id="jobDrawer" onclick="closeDrawer()">
+    <div class="drawer-panel" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+        <button class="modal-close-btn" onclick="closeDrawer()">&times;</button>
+      </div>
+      <div id="drawerContent" style="display: flex; flex-direction: column; flex: 1;">
+        <!-- Dynamically filled by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
